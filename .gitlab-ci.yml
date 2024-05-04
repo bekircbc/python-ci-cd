@@ -1,0 +1,19 @@
+stages: 
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+      - docker build -t $DOCKERHUB_USR/py-app .
+      - docker login -u $DOCKERHUB_USR -p $DOCKERHUB_PSW
+      - docker push $DOCKERHUB_USR/py-app
+      - docker image prune -a -- force
+
+deploy: 
+  stage: deploy
+  script:
+      - docker stop pyapp-run
+      - docker rm pyapp-run
+      - docker run -d --name -- pyapp-run -p 80:3001 $DOCKERHUB_USR/py-app
+  
